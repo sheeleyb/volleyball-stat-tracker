@@ -1,0 +1,38 @@
+﻿@page "/"
+
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+@using Fluxor
+@using StatTrackerGlobal.Client.Pages
+@using StatTrackerGlobal.Client.Store
+@using StatTrackerGlobal.Shared
+
+<h3>Create a new user</h3>
+
+<form>
+    <label for="username">Username</label>
+    <div></div>
+    <input id="username" @bind="Username" />
+    <div></div>
+    <label for="password">Password</label>
+    <div></div>
+    <input id="password" @bind="Password" />
+    <div></div>
+    <label for="teamname">Team Name</label>
+    <div></div>
+    <input id="teamname" @bind="TeamName" />
+    <div></div>
+    @* <button class="btn btn-primary" @onclick="LoginToTeamView">Login</button> *@
+</form>
+
+<button class="btn btn-primary" @onclick="JustGoToAPlace">Just go to a place</button>
+
+@code {
+    public class LoginViewModel
+    {
+        public string Username { get; init; }
+        public string Password { get; init; }
+        public string TeamName { get; init; }
+    }
+    public LoginViewModel ViewModel = new LoginViewModel();
+}

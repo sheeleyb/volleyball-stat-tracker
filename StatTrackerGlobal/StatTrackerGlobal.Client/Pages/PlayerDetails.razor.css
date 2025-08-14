@@ -1,0 +1,20 @@
+﻿body {
+}
+
+th {
+    height: 30%;
+    width: 30%;
+    font-size: 25px;
+}
+
+td {
+    height: 30%;
+    width: 30%;
+    font-size: 25px;
+}
+
+.btn-primary {
+    font-size: 15px;
+    width: 50%;
+    height: 30%;
+}

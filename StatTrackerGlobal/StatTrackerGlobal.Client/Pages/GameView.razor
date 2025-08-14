@@ -1,0 +1,64 @@
+﻿@page "/teamview/{TeamName}/gameview"
+
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
+
+@using Fluxor
+@using StatTrackerGlobal.App.ViewModels
+@using StatTrackerGlobal.Shared
+@using StatTrackerGlobal.Client.Store
+@using System.Collections.Immutable
+@using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel
+
+
+@inject IState<ViewState> ViewState
+@inject IDispatcher Dispatcher
+@inject NavigationManager NavManager
+
+<h3>Game Vs. @ViewModel.TeamAgainst</h3>
+<div>
+    <button class="btn btn-primary" @onclick="AddSet">Add Set</button>
+    @foreach(var set in Sets)
+    {
+        <button class="btn btn-primary" @onclick="(nav => GoToSet(set))">Set @set.Order</button>
+    }
+</div>
+<div class="flex-container">
+<div class="flex-child">
+<table>
+    <tr>
+        <th style="width: 200px">Name</th>
+        <th style="width: 50px">Number</th>
+        <th style="width: 50px">Height</th>
+        <th style="width: 300px;">Position</th>
+        <th style="width: 50px;">Details</th>
+    </tr>
+@foreach (var player in Players)
+{
+        <tr>
+            <td>@player.FirstName @player.LastName</td>
+            <td>@player.JerseyNumber</td>
+            <td>@player.Height</td>
+            <td>@player.Position</td>
+        </tr>
+}
+</table>
+<button class="btn btn-primary" @onclick="BackToTeamView">Return to Team View</button>
+</div>
+    @foreach(var player in ViewModel.Players)
+    {
+        @if (player.ShowPlayerDetails)
+        {
+            <div class="flex-child">
+                <PlayerDetails></PlayerDetails>
+            </div>
+        }
+    }
+</div>
+
+@code {
+
+    private void GoToSet(GameOverviewSet set)
+    {
+        
+    }
+}

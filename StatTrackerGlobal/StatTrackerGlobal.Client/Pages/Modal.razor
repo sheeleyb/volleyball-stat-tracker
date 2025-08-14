@@ -1,0 +1,23 @@
+﻿@if(this.IsOpen) {
+<div class="behind-modal"></div>
+<div class="addModal">
+        <button class="btn btn-close" @onclick="Close">🗙</button>
+    @Content
+</div>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment Content { get; set; }
+
+    public bool IsOpen { get; set; }
+
+    public void Open()
+    {
+        IsOpen = true;
+    }
+    public void Close()
+    {
+        IsOpen = false;
+    }
+}

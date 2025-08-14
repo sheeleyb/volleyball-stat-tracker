@@ -1,0 +1,32 @@
+﻿@page "/teamview/{TeamName}/gameview/setview"
+
+@using Fluxor
+@using StatTrackerGlobal.App.ViewModels
+@using StatTrackerGlobal.Client.Store
+@using System.Collections.Immutable
+
+@inject IState<ViewState> ViewState
+@inject IDispatcher Dispatcher
+
+@* <table>
+    <tr>
+        <th style="width: 200px">Name</th>
+        <th style="width: 50px">Number</th>
+        <th style="width: 50px">Height</th>
+        <th style="width: 300px;">Position</th>
+        <th style="width: 50px;">Details</th>
+    </tr>
+    @foreach (var player in Players)
+    {
+        <tr>
+            <td>@player.Player.FirstName @player.Player.LastName</td>
+            <td>@player.Player.JerseyNumber</td>
+            <td>@player.Player.Height</td>
+            <td>@player.Player.Position</td>
+            <td><button class="btn btn-primary" @onclick="@(detailView => ShowDetailView(player))">Details</button></td>
+        </tr>
+    }
+</table> *@
+
+@code {
+}

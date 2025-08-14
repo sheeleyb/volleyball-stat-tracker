@@ -1,0 +1,90 @@
+﻿body {
+}
+
+.addModal {
+    pointer-events: auto;
+    width: 300px;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    text-align: center;
+    padding: 5px;
+    background: #fff;
+    border-radius: 5px;
+    z-index: 300;
+}
+
+.detailModal {
+    pointer-events: auto;
+    width: 450px;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    text-align: center;
+    padding: 5px;
+    background: #fff;
+    border-radius: 5px;
+    z-index: 300;
+}
+
+.behind-modal {
+    pointer-events: none;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    opacity: 0.3;
+    z-index: 200;
+}
+
+.btn-close {
+    background: #fff;
+    color: #000;
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+}
+
+    .btn-close:hover {
+        background: #ff0000;
+        color: #fff;
+    }
+
+.btn-primary {
+    margin: 5px;
+}
+
+    .btn-primary:disabled {
+        background: #258cfb;
+    }
+
+th,
+td {
+    padding: 0.6em;
+}
+
+th {
+    background: #2B1C79;
+    color: #fff;
+    border: 1.5px solid #2B1C79
+}
+
+td {
+    background: #e6e6e6;
+    color: #000;
+    border: 1.5px solid gray;
+}
+
+
+.flex-container {
+    display: flex;
+}
+
+.flex-child {
+    flex: 1;
+}

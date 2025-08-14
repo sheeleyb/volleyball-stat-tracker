@@ -1,0 +1,192 @@
+﻿@page "/teamview/{TeamName}"
+
+<Fluxor.Blazor.Web.StoreInitializer></Fluxor.Blazor.Web.StoreInitializer>
+
+@inherits TeamOverviewBase
+
+@using Fluxor
+@using StatTrackerGlobal.Client.Store
+@using StatTrackerGlobal.App.ViewModels
+@using StatTrackerGlobal.Shared
+@using System.Collections.Immutable
+@using System.Globalization
+@using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel
+@using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
+
+@inject IDispatcher Dispatcher
+
+
+
+
+<div class="flex-container">
+    <div class="flex-child">
+        <h3>@ViewModel.TeamName</h3>
+        <table>
+            <tr>
+                <th style="width: 200px">Name</th>
+                <th style="width: 50px">Number</th>
+                <th style="width: 50px">Height</th>
+                <th style="width: 300px">Position</th>
+                <th style="width: 100px"></th>
+            </tr>
+            @foreach (var player in ViewModel.Players)
+            {
+                <tr>
+                    <td>@player.FirstName @player.LastName</td>
+                    <td>@player.JerseyNumber</td>
+                    <td>@player.Height</td>
+                    <td>@player.Position</td>
+                    <td><button class="btn btn-delete" @onclick="(d => DeletePlayer(player))">Delete</button></td>
+                </tr>
+            }
+        </table>
+        <button class="btn btn-primary" @onclick="OpenPlayerModal">Add Player</button>
+    </div>
+    <div align="center" class="flex-child">
+        <h3>Games</h3>
+        <button class="btn btn-primary" @onclick="OpenGameModal">Add Game</button>
+        <table>
+            <tr>
+                <th>Against</th>
+                <th>Winner</th>
+                <th>Score</th>
+                <th>Date</th>
+                <th>Details</th>
+                <th></th>
+            </tr>
+            @foreach(var game in ViewModel.Games)
+            {
+                <tr>
+                    <td>@game.Against</td>
+                    <td>@game.Winner</td>
+                    <td>@game.Score</td>
+                    <td>@game.Date.ToShortDateString()</td>
+                    <td><button class="btn btn-primary" @onclick="@(nav => TeamViewToGameView(game))">Details</button></td>
+                    <td><button class="btn btn-delete" @onclick="(del => DeleteGame(game))">Delete</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+
+
+<Modal @ref="PlayerModal">
+    <Content>
+        <EditForm Model="SavedPlayer">
+            <label for="First">First Name</label>
+            <div></div>
+            <input id="First" class="myInput" @bind="FirstName" />
+            <div></div>
+            <label for="Last">Last Name</label>
+            <div></div>
+            <input id="Last" class="myInput" @bind="LastName" />
+            <div></div>
+            <label for="Jersey">Jersey Number</label>
+            <div></div>
+            <input id="Jersey" class="myInput" @bind="JerseyNumber" />
+            <div></div>
+            <label for="Height">Height</label>
+            <div></div>
+            <input id="Height" class="myInput" @bind="Height" />
+            <div></div>
+            <label for="Position">Position</label>
+            <div></div>
+            <select id="Position" @bind="Position">
+                <option value=""></option>
+                <option value="Outside Hitter">Outside Hitter</option>
+                <option value="Opposite Hitter">Opposite Hitter</option>
+                <option value="Middle Blocker">Middle Blocker</option>
+                <option value="Setter">Setter</option>
+                <option value="Libero">Libero</option>
+                <option value="Defensive Specialist">Defensive Specialist</option>
+            </select>
+        </EditForm>
+        <div>
+            <button class="btn myBtn" @onclick="SubmitPlayer">Submit</button>
+        </div>
+    </Content>
+</Modal>
+
+<Modal @ref="GameModal">
+    <Content>
+        <EditForm Model="template">
+            <label for="TeamOne">Team One</label>
+            <div></div>
+            <input id="TeamOne" class="myInput" @bind="TeamOne" />
+            <div></div>
+            <label for="TeamTwo">Team Two</label>
+            <div></div>
+            <input id="TeamTwo" class="myInput" @bind="TeamTwo" />
+            <div></div>
+            <label for="Date">Date</label>
+            <div></div>
+            <InputDate @bind-Value="InputDate"/>
+            <div></div>
+        </EditForm>
+        <div>
+            <button class="btn myBtn" @onclick="SubmitGame">Submit</button>
+        </div>
+
+    </Content>
+</Modal>
+
+@code {
+    private Modal PlayerModal;
+    private Modal GameModal;
+
+    private string FirstName { get; set; } = string.Empty;
+    private string LastName { get; set; } = string.Empty;
+    private int JerseyNumber { get; set; }
+    private string Height { get; set; } = string.Empty;
+    private string Position { get; set; } = string.Empty;
+    private TeamOverviewPlayer SavedPlayer { get; set; } = new TeamOverviewPlayer("", "", 0, "", "");
+
+    private string TeamOne { get; set; } = string.Empty;
+    private string TeamTwo { get; set; } = string.Empty;
+    private DateTime InputDate { get; set; }
+    private TeamOverviewGame template { get; set; } = new TeamOverviewGame("", "", "", DateTime.Now);
+
+    public void OpenPlayerModal()
+    {
+        ClearPlayerInfo();
+        PlayerModal.Open();
+    }
+    public void OpenGameModal()
+    {
+        ClearGameInfo();
+        GameModal.Open();
+    }
+    public void SubmitPlayer()
+    {
+        Dispatcher.Dispatch(new AddPlayerAction(FirstName, LastName, JerseyNumber, Height, Position));
+        PlayerModal.Close();
+    }
+    public void SubmitGame()
+    {
+        Dispatcher.Dispatch(new AddGameAction(TeamTwo, InputDate));
+        GameModal.Close();
+    }
+    private void ClearPlayerInfo()
+    {
+        FirstName = "";
+        LastName = "";
+        JerseyNumber = 0;
+        Height = "";
+        Position = "";
+    }
+    private void ClearGameInfo()
+    {
+        TeamOne = "";
+        TeamTwo = "";
+        InputDate = DateTime.Now;
+    }
+    private void DeletePlayer(TeamOverviewPlayer player)
+    {
+        Dispatcher.Dispatch(new DeletePlayerAction(player.FirstName, player.LastName));
+    }
+    private void DeleteGame(TeamOverviewGame game)
+    {
+        Dispatcher.Dispatch(new DeleteGameAction(game.Against, game.Date));
+    }
+}
+
