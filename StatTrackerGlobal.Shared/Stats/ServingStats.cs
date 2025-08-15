@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace StatTrackerGlobal.Domain.Stats
 {
-    public class ServingStats
+    public record ServingStats
     {
         public int Aces { get; set; }
         public int ServesMade { get; set; }
+        public int ServesMissed { get; set; }
         public int TotalServes { get; set; }
         public double ServePercentages { get; set; }
     }

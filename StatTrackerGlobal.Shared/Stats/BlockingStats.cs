@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StatTrackerGlobal.Domain.Stats
 {
-    public class BlockingStats
+    public record BlockingStats
     {
         public int KillBlocks { get; set; }
         public int Touches { get; set; }

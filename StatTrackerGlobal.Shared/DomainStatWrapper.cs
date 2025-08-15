@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StatTrackerGlobal.Domain
 {
-    public class DomainStatWrapper
+    public record DomainStatWrapper
     {
         public Set StatSet { get; set; } = new();
 
