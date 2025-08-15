@@ -4,11 +4,12 @@
 @using StatTrackerGlobal.App.ViewModels
 @using StatTrackerGlobal.Client.Store
 @using System.Collections.Immutable
+@using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel
 
 @inject IState<ViewState> ViewState
 @inject IDispatcher Dispatcher
 
-@* <table>
+<table>
     <tr>
         <th style="width: 200px">Name</th>
         <th style="width: 50px">Number</th>
@@ -16,17 +17,26 @@
         <th style="width: 300px;">Position</th>
         <th style="width: 50px;">Details</th>
     </tr>
-    @foreach (var player in Players)
+    @foreach (var player in ViewModel.Players)
     {
         <tr>
-            <td>@player.Player.FirstName @player.Player.LastName</td>
-            <td>@player.Player.JerseyNumber</td>
-            <td>@player.Player.Height</td>
-            <td>@player.Player.Position</td>
+            <td>@player.FirstName @player.LastName</td>
+            <td>@player.JerseyNumber</td>
+            <td>@player.Height</td>
+            <td>@player.Position</td>
             <td><button class="btn btn-primary" @onclick="@(detailView => ShowDetailView(player))">Details</button></td>
         </tr>
     }
-</table> *@
+</table>
+
+<PlayerDetails @ref="playerDetails"></PlayerDetails>
 
 @code {
+    PlayerDetails playerDetails;
+
+    public void ShowDetailView(SetOverviewPlayer player)
+    {
+        playerDetails.SetPlayer = player;
+        playerDetails.Open();
+    }
 }

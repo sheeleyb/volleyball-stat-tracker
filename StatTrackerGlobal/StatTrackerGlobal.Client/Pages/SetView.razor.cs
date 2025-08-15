@@ -19,9 +19,9 @@ namespace StatTrackerGlobal.Client.Pages
             get => ViewState.Value.TeamViewModel;
             set => Dispatcher.Dispatch(new UpdateTeamViewModelAction(value));
         }
-        //public void ShowDetailView(PlayerViewModel player)
-        //{
-        //    player.ShowPlayerDetails = true;
-        //}
+        public SetOverviewViewModel ViewModel
+        {
+            get => ViewState.Value.SetViewModel;
+        }
     }
 }
