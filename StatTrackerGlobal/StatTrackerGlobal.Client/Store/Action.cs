@@ -10,6 +10,7 @@ namespace StatTrackerGlobal.Client.Store
 {
     public record UpdateViewStateAction(ViewState ViewState);
     public record UpdateCurrentGameAction(string TeamAgainst, DateTime Date);
+    public record UpdateCurrentSetAction(string TeamOne, string TeamTwo, DateTime Date, int Order);
     public record UpdateTeamViewModelAction(TeamOverviewViewModel team);
     public record AddGameAction(string TeamAgainst, DateTime Date);
     public record AddGameSetsAction(string TeamAgainst, DateTime Date);

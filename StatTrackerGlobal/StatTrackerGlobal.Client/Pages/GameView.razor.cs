@@ -30,6 +30,10 @@ namespace StatTrackerGlobal.Client.Pages
         {
             get => ViewState.Value.GameViewModel;
         }
+        public SetOverviewViewModel Set
+        {
+            get => ViewState.Value.SetViewModel;
+        }
         public ImmutableList<GameOverviewSet> Sets
         {
             get => ViewModel.Sets;

@@ -16,6 +16,7 @@ namespace StatTrackerGlobal.App.Interfaces
     public interface IApplicationService
     {
         public MockViewState EditUpdateCurrentGameAction(string TeamAgainst, DateTime Date);
+        public MockViewState EditUpdateCurrentSetAction(string TeamOne, string TeamTwo, DateTime Date, int Order);
         public MockViewState EditUpdateCurrentTeamAction(TeamOverviewViewModel Team);
         public MockViewState EditAddGameSetsAction(string TeamAgainst, DateTime Date);
         public MockViewState EditAddPlayerAction(string FirstName, string LastName, int JerseyNumber, string Height, string Position);

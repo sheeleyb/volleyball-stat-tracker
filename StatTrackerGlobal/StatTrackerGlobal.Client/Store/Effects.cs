@@ -23,6 +23,12 @@ namespace StatTrackerGlobal.Client.Store
             dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
         }
         [EffectMethod]
+        public async Task HandleUpdateCurrentSetAction(UpdateCurrentSetAction action, IDispatcher dispatcher)
+        {
+            MockViewState newState = AppService.EditUpdateCurrentSetAction(action.TeamOne, action.TeamTwo, action.Date, action.Order);
+            dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
+        }
+        [EffectMethod]
         public async Task HandleUpdateTeamViewModelAction(UpdateTeamViewModelAction action, IDispatcher dispatcher)
         {
             MockViewState newState = AppService.EditUpdateCurrentTeamAction(action.team);

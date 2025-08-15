@@ -38,6 +38,18 @@ namespace StatTrackerGlobal.App
             };
             return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
+        public MockViewState EditUpdateCurrentSetAction(string TeamOne, string TeamTwo, DateTime Date, int Order)
+        {
+            Predicate<Set> IsCurrentSet = s => ((s.TeamOne == TeamOne)  && (s.TeamTwo == TeamTwo) && (s.Order == Order));
+            DomainWrapper.CurrentSet = DomainWrapper.Sets.Find(IsCurrentSet);
+            DomainWrapper.CurrentSet = new Set()
+            {
+                TeamOne = TeamOne,
+                TeamTwo = TeamTwo,
+                Order = Order
+            };
+            return ModelHandler.DomainModelsToViewModels(DomainWrapper);
+        }
         public MockViewState EditUpdateCurrentTeamAction(TeamOverviewViewModel TeamVM)
         {
             return new MockViewState() with { TeamViewModel = TeamVM};
