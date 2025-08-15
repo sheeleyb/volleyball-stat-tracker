@@ -27,8 +27,7 @@ namespace StatTrackerGlobal.App.ViewModels
                                          int Attempts,
                                          int Errors,
                                          double KillPercentage,
-                                         double ErrorPercentage,
-                                         double KillErrorRatio);
+                                         double ErrorPercentage);
         public record SetOverviewBlocks(int KillBlocks,
                                         int Touches,
                                         int BlockErrors,

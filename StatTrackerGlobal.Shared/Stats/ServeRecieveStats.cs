@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StatTrackerGlobal.Domain.Stats
 {
-    public class ServeRecieveStats
+    public record ServeRecieveStats
     {
         public int ThreePointPasses { get; set; }
         public int TwoPointPasses { get; set; }
