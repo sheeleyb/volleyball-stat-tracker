@@ -9,11 +9,6 @@
 @using System.Collections.Immutable
 @using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel
 
-
-@inject IState<ViewState> ViewState
-@inject IDispatcher Dispatcher
-@inject NavigationManager NavManager
-
 <h3>Game Vs. @ViewModel.TeamAgainst</h3>
 <div>
     <button class="btn btn-primary" @onclick="AddSet">Add Set</button>
@@ -56,10 +51,4 @@
 </div>
 
 @code {
-
-    private void GoToSet(GameOverviewSet set)
-    {
-        Dispatcher.Dispatch(new UpdateCurrentSetAction(Team.TeamName, ViewModel.TeamAgainst, ViewModel.Date, set.Order));
-        NavManager.NavigateTo("teamview/" + TeamName + "/gameview/setview");
-    }
 }

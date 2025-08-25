@@ -9,34 +9,42 @@
 @inject IState<ViewState> ViewState
 @inject IDispatcher Dispatcher
 
-<table>
-    <tr>
-        <th style="width: 200px">Name</th>
-        <th style="width: 50px">Number</th>
-        <th style="width: 50px">Height</th>
-        <th style="width: 300px;">Position</th>
-        <th style="width: 50px;">Details</th>
-    </tr>
-    @foreach (var player in ViewModel.Players)
-    {
-        <tr>
-            <td>@player.FirstName @player.LastName</td>
-            <td>@player.JerseyNumber</td>
-            <td>@player.Height</td>
-            <td>@player.Position</td>
-            <td><button class="btn btn-primary" @onclick="@(detailView => ShowDetailView(player))">Details</button></td>
-        </tr>
-    }
-</table>
+<div class="flex-container">
+    <div class=flex-child>
+        <table>
+            <tr>
+                <th style="width: 200px">Name</th>
+                <th style="width: 50px">Number</th>
+                <th style="width: 50px">Height</th>
+                <th style="width: 300px;">Position</th>
+                <th style="width: 50px;">Details</th>
+            </tr>
+            @foreach (var player in ViewModel.Players)
+            {
+                <tr>
+                    <td>@player.FirstName @player.LastName</td>
+                    <td>@player.JerseyNumber</td>
+                    <td>@player.Height</td>
+                    <td>@player.Position</td>
+                    <td><button class="btn btn-primary" @onclick="@(detailView => ShowDetailView(player))">Details</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="flex-child">
+        <PlayerDetails @ref="playerDetails" SetPlayer="playerToShow"></PlayerDetails>
+    </div>
+</div>
 
-<PlayerDetails @ref="playerDetails"></PlayerDetails>
 
 @code {
     PlayerDetails playerDetails;
 
+    SetOverviewPlayer playerToShow { get; set; }
+
     public void ShowDetailView(SetOverviewPlayer player)
     {
-        playerDetails.SetPlayer = player;
+        playerToShow = player;
         playerDetails.Open();
     }
 }

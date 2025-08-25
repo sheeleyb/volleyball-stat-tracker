@@ -1,4 +1,5 @@
-﻿using StatTrackerGlobal.App;
+﻿using Microsoft.AspNetCore.Components;
+using StatTrackerGlobal.App;
 using StatTrackerGlobal.App.Interfaces;
 using StatTrackerGlobal.App.ViewModels;
 using StatTrackerGlobal.Client.Store;
@@ -8,12 +9,8 @@ namespace StatTrackerGlobal.Client.Pages
 {
     public partial class SetView
     {
-        //public IApplicationService AppService = new MockApplicationService();
-        //public ImmutableList<PlayerViewModel> Players
-        //{
-        //    get => AppService.FetchPlayers(Team);
-        //    set => AppService.SavePlayers(value, Team);
-        //}
+        [Parameter]
+        public string TeamName { get; set; }
         public TeamOverviewViewModel Team
         {
             get => ViewState.Value.TeamViewModel;

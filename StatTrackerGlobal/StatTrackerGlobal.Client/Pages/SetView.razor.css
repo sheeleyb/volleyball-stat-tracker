@@ -1,0 +1,23 @@
+﻿th, 
+td {
+    padding: 0.6em;
+}
+
+th {
+    background: #2B1C79;
+    color: #fff;
+    border: 1.5px solid #2B1C79
+}
+
+td {
+    background: #e6e6e6;
+    color: #000;
+    border: 1.5px solid gray;
+}
+.flex-container {
+    display: flex;
+}
+
+.flex-child {
+    flex: 1;
+}
