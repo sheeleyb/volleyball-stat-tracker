@@ -12,6 +12,10 @@ using StatTrackerGlobal.Shared;
 using Microsoft.AspNetCore.Components;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
+using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel;
+using System.Security.Cryptography.X509Certificates;
+using StatTrackerGlobal.Domain;
+using StatTrackerGlobal.Domain.Stats;
 
 namespace StatTrackerGlobal.App
 {
@@ -53,6 +57,56 @@ namespace StatTrackerGlobal.App
         public MockViewState EditUpdateCurrentTeamAction(TeamOverviewViewModel TeamVM)
         {
             return new MockViewState() with { TeamViewModel = TeamVM};
+        }
+        public MockViewState EditUpdatePlayerStatAction(SetOverviewPlayer playerToUpdate, SetOverviewViewModel currentSet)
+        {
+            Predicate<VolleyballPlayer> playerExists = p => (p.FirstName + p.LastName == playerToUpdate.FirstName + playerToUpdate.LastName);
+            VolleyballPlayer? domainPlayerToUpdate = DomainWrapper.Players.Find(playerExists);
+            Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date) || (s.StatSet.Order == 1);
+            DomainStatWrapper? domainStatWrapperToUpdate = domainPlayerToUpdate.PlayerStats.Find(statWrapperExists);
+            ImmutableList<DomainStatWrapper> newWrappers = domainPlayerToUpdate.PlayerStats.Remove(domainStatWrapperToUpdate);
+            AttackingStats newAttacks = new()
+            {
+                Kills = playerToUpdate.AttackStats.Kills,
+                Attempts = playerToUpdate.AttackStats.Attempts,
+                Errors = playerToUpdate.AttackStats.Errors
+            };
+            BlockingStats newBlocks = new()
+            {
+                KillBlocks = playerToUpdate.BlockStats.KillBlocks,
+                Touches = playerToUpdate.BlockStats.Touches,
+                BlockErrors = playerToUpdate.BlockStats.BlockErrors
+            };
+            PassingStats newPasses = new()
+            {
+                Digs = playerToUpdate.PassStats.Digs,
+                BallTouches = playerToUpdate.PassStats.BallTouches,
+                BallMisses = playerToUpdate.PassStats.BallMisses
+            };
+            ServeRecieveStats newServeRecieveStats = new()
+            {
+                ThreePointPasses = playerToUpdate.ServeRecieveStats.ThreePointPasses,
+                TwoPointPasses = playerToUpdate.ServeRecieveStats.TwoPointPasses,
+                OnePointPasses = playerToUpdate.ServeRecieveStats.OnePointPasses,
+                ZeroPointPasses = playerToUpdate.ServeRecieveStats.ZeroPointPasses
+            };
+            ServingStats newServeStats = new()
+            {
+                Aces = playerToUpdate.ServeStats.Aces,
+                ServesMade = playerToUpdate.ServeStats.ServesMade,
+                ServesMissed = playerToUpdate.ServeStats.ServesMissed
+            };
+            newWrappers = newWrappers.Add(new DomainStatWrapper() 
+            { 
+                StatSet = domainStatWrapperToUpdate.StatSet,
+                AttackingStats = newAttacks,
+                BlockingStats = newBlocks,
+                PassingStats = newPasses,
+                ServeRecieveStats = newServeRecieveStats,
+                ServingStats = newServeStats
+            });
+            VolleyballPlayer newPlayer = domainPlayerToUpdate with { PlayerStats = newWrappers };
+            return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
 
         public MockViewState EditAddGameAction(string TeamAgainst, DateTime Date)

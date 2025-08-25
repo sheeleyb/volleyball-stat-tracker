@@ -1,19 +1,9 @@
 ﻿using StatTrackerGlobal.App.DataModels;
-using StatTrackerGlobal.App.Interfaces;
 using StatTrackerGlobal.App.ViewModels;
 using StatTrackerGlobal.Domain;
 using StatTrackerGlobal.Domain.Stats;
 using StatTrackerGlobal.Shared;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
@@ -120,7 +110,8 @@ namespace StatTrackerGlobal.App
             {
                 TeamOnePoints = domain.CurrentSet.TeamOneScore,
                 TeamTwoPoints = domain.CurrentSet.TeamTwoScore,
-                Players = setPlayers
+                Players = setPlayers,
+                Date = domain.CurrentGame.Date
             };
             TeamOverviewViewModel teamViewModel = new TeamOverviewViewModel()
             {
@@ -312,8 +303,10 @@ namespace StatTrackerGlobal.App
                         TeamTwo = gameData.TeamTwo,
                         TeamOneScore = setToAdd.TeamOneScore,
                         TeamTwoScore = setToAdd.TeamTwoScore,
-                        Order = setToAdd.Order
+                        Order = setToAdd.Order,
+                        Date = gameData.TimeStamp
                     };
+                    Sets = Sets.Add(domainSet);
                     foreach (var statEvent in setToAdd.StatEvents)
                     {
                         Predicate<PlayerData> playerStatMatch = p => (statEvent.PlayerId == p.Id);

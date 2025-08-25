@@ -29,6 +29,7 @@ namespace StatTrackerGlobal.Shared
         public int TeamOneScore { get; set; }
         public int TeamTwoScore { get; set; }
         public int Order { get; set; }
+        public DateTime Date { get; set; }
         public ImmutableList<VolleyballPlayer> LocalPlayers { get; set; } = ImmutableList<VolleyballPlayer>.Empty;
 
     }
