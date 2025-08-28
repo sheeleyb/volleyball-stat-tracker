@@ -71,6 +71,12 @@ namespace StatTrackerGlobal.Client.Store
             dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
         }
         [EffectMethod]
+        public async Task HandleDeleteSetAction(DeleteSetAction action, IDispatcher dispatcher)
+        {
+            MockViewState newState = AppService.EditDeleteSetAction(action.Date, action.Order);
+            dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
+        }
+        [EffectMethod]
         public async Task HandleInitializeApplicationAction(InitializeApplicationAction action, IDispatcher dispatcher)
         {
             MockViewState newState = AppService.EditInitializeApplicationAction();

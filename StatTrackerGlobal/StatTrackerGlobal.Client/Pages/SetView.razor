@@ -8,8 +8,14 @@
 
 @inject IState<ViewState> ViewState
 @inject IDispatcher Dispatcher
+@inject NavigationManager NavManager
 
-<h3></h3>
+<h3>Set @SetOrder</h3>
+
+<div>
+    <button class="btn btn-primary" @onclick="NavToGameView">Return to game view</button>
+    <button class="btn btn-delete" @onclick="DeleteCurrentSet">Delete Set</button>
+</div>
 
 <div class="flex-container">
     <div class=flex-child>
@@ -46,6 +52,17 @@
     PlayerDetails playerDetails;
 
     SetOverviewPlayer playerToShow { get; set; }
+
+    public void NavToGameView()
+    {
+        NavManager.NavigateTo("/teamview/" + TeamName + "/gameview");
+    }
+
+    public void DeleteCurrentSet()
+    {
+        Dispatcher.Dispatch(new DeleteSetAction(ViewModel.Date, SetOrder));
+        NavToGameView();
+    }
 
     public void ShowDetailView(SetOverviewPlayer player)
     {

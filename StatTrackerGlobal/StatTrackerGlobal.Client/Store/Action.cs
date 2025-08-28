@@ -18,6 +18,7 @@ namespace StatTrackerGlobal.Client.Store
     public record AddGameAction(string TeamAgainst, DateTime Date);
     public record AddGameSetsAction(string TeamAgainst, DateTime Date);
     public record DeleteGameAction(string TeamAgainst, DateTime Date);
+    public record DeleteSetAction(DateTime Date, int Order);
     public record AddPlayerAction(string FirstName, string LastName, int JerseyNumber, string Height, string Position);
     public record DeletePlayerAction(string FirstName, string LastName);
     public record InitializeApplicationAction();

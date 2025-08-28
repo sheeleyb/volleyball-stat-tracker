@@ -148,6 +148,71 @@ namespace StatTrackerGlobal.App
             SaveCurrentDomainToPersistence();
             return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
+        public MockViewState EditDeleteSetAction(DateTime Date, int Order)
+        {
+            Predicate<Set> SetExists = s => (s.Date == Date) && (s.Order == Order);
+            Set? setToRemove = DomainWrapper.Sets.Find(SetExists);
+            DomainWrapper.Sets = DomainWrapper.Sets.Remove(setToRemove);
+            bool deleted = false;
+            foreach (var set in DomainWrapper.CurrentGame.Sets)
+            {
+                if (SetExists(set))
+                {
+                    DomainWrapper.CurrentGame.Sets = DomainWrapper.CurrentGame.Sets.Remove(set);
+                    deleted = true;
+                }
+                if (deleted)
+                {
+                    set.Order = set.Order - 1;
+                }
+            }
+            bool deletedFromSets = false;
+            foreach(var set in DomainWrapper.Sets)
+            {
+                if (SetExists(set))
+                {
+                    DomainWrapper.Sets = DomainWrapper.Sets.Remove(set);
+                    deletedFromSets = true;
+                }
+                if (deletedFromSets && set.Date == Date)
+                {
+                    set.Order = set.Order - 1;
+                }
+            }
+            Predicate<Game> GameExists = g => (g.Date == Date);
+            Game? gameToFind = DomainWrapper.Games.Find(GameExists);
+            bool deletedFromGames = false;
+            foreach (var set in gameToFind.Sets)
+            {
+                if (SetExists(set))
+                {
+                    gameToFind.Sets = gameToFind.Sets.Remove(set);
+                    deletedFromGames = true;
+                }
+                if (deletedFromGames)
+                {
+                    set.Order = set.Order - 1;
+                }
+            }
+            bool deletedFromPlayers = false;
+            foreach (var player in DomainWrapper.Players)
+            {
+                foreach (var playerStat in player.PlayerStats)
+                {
+                    if (SetExists(playerStat.StatSet))
+                    {
+                        player.PlayerStats = player.PlayerStats.Remove(playerStat);
+                        deletedFromPlayers = true;
+                    }
+                    if (deletedFromPlayers && playerStat.StatSet.Date == Date)
+                    {
+                        playerStat.StatSet.Order = playerStat.StatSet.Order - 1;
+                    }
+                }
+            }
+            SaveCurrentDomainToPersistence();
+            return ModelHandler.DomainModelsToViewModels(DomainWrapper);
+        }
         public MockViewState EditAddGameSetsAction(string TeamAgainst, DateTime Date)
         {
             Predicate<Game> Exists = g => ((g.Date == Date) && (g.TeamTwo == TeamAgainst));

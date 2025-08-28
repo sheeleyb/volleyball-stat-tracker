@@ -25,6 +25,7 @@ namespace StatTrackerGlobal.App.Interfaces
         public MockViewState EditDeletePlayerAction(string FirstName, string LastName);
         public MockViewState EditAddGameAction(string TeamAgainst, DateTime Date);
         public MockViewState EditDeleteGameAction(string TeamAgainst, DateTime Date);
+        public MockViewState EditDeleteSetAction(DateTime Date, int Order);
         public MockViewState EditInitializeApplicationAction();
     }
 }

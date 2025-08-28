@@ -21,3 +21,11 @@ td {
 .flex-child {
     flex: 1;
 }
+.btn-delete {
+    background: #ff0000;
+    color: #fff;
+    margin: 5px;
+}
+.btn-primary {
+    margin: 5px;
+}
