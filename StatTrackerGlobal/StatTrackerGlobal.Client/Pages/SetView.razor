@@ -1,4 +1,4 @@
-﻿@page "/teamview/{TeamName}/gameview/setview"
+﻿@page "/teamview/{TeamName}/gameview/setview/{SetOrder:int}"
 
 @using Fluxor
 @using StatTrackerGlobal.App.ViewModels
@@ -8,6 +8,8 @@
 
 @inject IState<ViewState> ViewState
 @inject IDispatcher Dispatcher
+
+<h3></h3>
 
 <div class="flex-container">
     <div class=flex-child>
@@ -38,6 +40,9 @@
 
 
 @code {
+    [Parameter]
+    public int SetOrder { get; set; }
+
     PlayerDetails playerDetails;
 
     SetOverviewPlayer playerToShow { get; set; }

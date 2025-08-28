@@ -57,7 +57,7 @@ namespace StatTrackerGlobal.Client.Pages
         private void GoToSet(GameOverviewSet set)
         {
             Dispatcher.Dispatch(new UpdateCurrentSetAction(Team.TeamName, ViewModel.TeamAgainst, ViewModel.Date, set.Order));
-            NavManager.NavigateTo("teamview/" + TeamName + "/gameview/setview");
+            NavManager.NavigateTo("teamview/" + TeamName + "/gameview/setview/" + set.Order);
         }
     }
 }
