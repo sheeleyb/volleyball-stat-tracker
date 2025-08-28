@@ -63,7 +63,7 @@ namespace StatTrackerGlobal.App
         {
             Predicate<VolleyballPlayer> playerExists = p => (p.FirstName + p.LastName == playerToUpdate.FirstName + playerToUpdate.LastName);
             VolleyballPlayer? domainPlayerToUpdate = DomainWrapper.Players.Find(playerExists);
-            Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date);
+            Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date) && (s.StatSet.Order == DomainWrapper.CurrentSet.Order);
             DomainStatWrapper? domainStatWrapperToUpdate = domainPlayerToUpdate.PlayerStats.Find(statWrapperExists);
             if (domainStatWrapperToUpdate == null)
             {
@@ -157,7 +157,8 @@ namespace StatTrackerGlobal.App
                 LocalPlayers = DomainWrapper.Players,
                 Order = domainGame.Sets.Count() + 1,
                 TeamOne = DomainWrapper.Team.Name,
-                TeamTwo = TeamAgainst
+                TeamTwo = TeamAgainst,
+                Date = Date
             };
             domainGame.Sets = domainGame.Sets.Add(newSet);
             DomainWrapper.Sets = DomainWrapper.Sets.Add(newSet);
