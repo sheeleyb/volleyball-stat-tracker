@@ -50,7 +50,8 @@ namespace StatTrackerGlobal.App
             {
                 TeamOne = TeamOne,
                 TeamTwo = TeamTwo,
-                Order = Order
+                Order = Order,
+                Date = Date
             };
             return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
@@ -62,8 +63,24 @@ namespace StatTrackerGlobal.App
         {
             Predicate<VolleyballPlayer> playerExists = p => (p.FirstName + p.LastName == playerToUpdate.FirstName + playerToUpdate.LastName);
             VolleyballPlayer? domainPlayerToUpdate = DomainWrapper.Players.Find(playerExists);
-            Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date) || (s.StatSet.Order == 1);
+            Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date);
             DomainStatWrapper? domainStatWrapperToUpdate = domainPlayerToUpdate.PlayerStats.Find(statWrapperExists);
+            if (domainStatWrapperToUpdate == null)
+            {
+                Set tempSet = new Set()
+                {
+                    TeamOne = DomainWrapper.Team.Name,
+                    TeamTwo = DomainWrapper.CurrentGame.TeamTwo,
+                    Date = currentSet.Date,
+                    Order = DomainWrapper.CurrentSet.Order
+                };
+                DomainStatWrapper newWrapper = new DomainStatWrapper()
+                {
+                    StatSet = tempSet
+                };
+                domainPlayerToUpdate.PlayerStats = domainPlayerToUpdate.PlayerStats.Add(newWrapper);
+                domainStatWrapperToUpdate = newWrapper;
+            }
             ImmutableList<DomainStatWrapper> newWrappers = domainPlayerToUpdate.PlayerStats.Remove(domainStatWrapperToUpdate);
             AttackingStats newAttacks = new()
             {
@@ -106,6 +123,9 @@ namespace StatTrackerGlobal.App
                 ServingStats = newServeStats
             });
             VolleyballPlayer newPlayer = domainPlayerToUpdate with { PlayerStats = newWrappers };
+            DomainWrapper.Players = DomainWrapper.Players.Remove(domainPlayerToUpdate);
+            DomainWrapper.Players = DomainWrapper.Players.Add(newPlayer);
+            SaveCurrentDomainToPersistence();
             return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
 
@@ -135,7 +155,7 @@ namespace StatTrackerGlobal.App
             Set newSet = new()
             {
                 LocalPlayers = DomainWrapper.Players,
-                Order = domainGame.Sets.Count(),
+                Order = domainGame.Sets.Count() + 1,
                 TeamOne = DomainWrapper.Team.Name,
                 TeamTwo = TeamAgainst
             };
