@@ -12,6 +12,10 @@ using StatTrackerGlobal.Shared;
 using Microsoft.AspNetCore.Components;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
+using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel;
+using System.Security.Cryptography.X509Certificates;
+using StatTrackerGlobal.Domain;
+using StatTrackerGlobal.Domain.Stats;
 
 namespace StatTrackerGlobal.App
 {
@@ -38,9 +42,91 @@ namespace StatTrackerGlobal.App
             };
             return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
+        public MockViewState EditUpdateCurrentSetAction(string TeamOne, string TeamTwo, DateTime Date, int Order)
+        {
+            Predicate<Set> IsCurrentSet = s => ((s.TeamOne == TeamOne)  && (s.TeamTwo == TeamTwo) && (s.Order == Order));
+            DomainWrapper.CurrentSet = DomainWrapper.Sets.Find(IsCurrentSet);
+            DomainWrapper.CurrentSet = new Set()
+            {
+                TeamOne = TeamOne,
+                TeamTwo = TeamTwo,
+                Order = Order,
+                Date = Date
+            };
+            return ModelHandler.DomainModelsToViewModels(DomainWrapper);
+        }
         public MockViewState EditUpdateCurrentTeamAction(TeamOverviewViewModel TeamVM)
         {
             return new MockViewState() with { TeamViewModel = TeamVM};
+        }
+        public MockViewState EditUpdatePlayerStatAction(SetOverviewPlayer playerToUpdate, SetOverviewViewModel currentSet)
+        {
+            Predicate<VolleyballPlayer> playerExists = p => (p.FirstName + p.LastName == playerToUpdate.FirstName + playerToUpdate.LastName);
+            VolleyballPlayer? domainPlayerToUpdate = DomainWrapper.Players.Find(playerExists);
+            Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date) && (s.StatSet.Order == DomainWrapper.CurrentSet.Order);
+            DomainStatWrapper? domainStatWrapperToUpdate = domainPlayerToUpdate.PlayerStats.Find(statWrapperExists);
+            if (domainStatWrapperToUpdate == null)
+            {
+                Set tempSet = new Set()
+                {
+                    TeamOne = DomainWrapper.Team.Name,
+                    TeamTwo = DomainWrapper.CurrentGame.TeamTwo,
+                    Date = currentSet.Date,
+                    Order = DomainWrapper.CurrentSet.Order
+                };
+                DomainStatWrapper newWrapper = new DomainStatWrapper()
+                {
+                    StatSet = tempSet
+                };
+                domainPlayerToUpdate.PlayerStats = domainPlayerToUpdate.PlayerStats.Add(newWrapper);
+                domainStatWrapperToUpdate = newWrapper;
+            }
+            ImmutableList<DomainStatWrapper> newWrappers = domainPlayerToUpdate.PlayerStats.Remove(domainStatWrapperToUpdate);
+            AttackingStats newAttacks = new()
+            {
+                Kills = playerToUpdate.AttackStats.Kills,
+                Attempts = playerToUpdate.AttackStats.Attempts,
+                Errors = playerToUpdate.AttackStats.Errors
+            };
+            BlockingStats newBlocks = new()
+            {
+                KillBlocks = playerToUpdate.BlockStats.KillBlocks,
+                Touches = playerToUpdate.BlockStats.Touches,
+                BlockErrors = playerToUpdate.BlockStats.BlockErrors
+            };
+            PassingStats newPasses = new()
+            {
+                Digs = playerToUpdate.PassStats.Digs,
+                BallTouches = playerToUpdate.PassStats.BallTouches,
+                BallMisses = playerToUpdate.PassStats.BallMisses
+            };
+            ServeRecieveStats newServeRecieveStats = new()
+            {
+                ThreePointPasses = playerToUpdate.ServeRecieveStats.ThreePointPasses,
+                TwoPointPasses = playerToUpdate.ServeRecieveStats.TwoPointPasses,
+                OnePointPasses = playerToUpdate.ServeRecieveStats.OnePointPasses,
+                ZeroPointPasses = playerToUpdate.ServeRecieveStats.ZeroPointPasses
+            };
+            ServingStats newServeStats = new()
+            {
+                Aces = playerToUpdate.ServeStats.Aces,
+                ServesMade = playerToUpdate.ServeStats.ServesMade,
+                ServesMissed = playerToUpdate.ServeStats.ServesMissed
+            };
+            newWrappers = newWrappers.Add(new DomainStatWrapper() 
+            { 
+                StatSet = domainStatWrapperToUpdate.StatSet,
+                AttackingStats = newAttacks,
+                BlockingStats = newBlocks,
+                PassingStats = newPasses,
+                ServeRecieveStats = newServeRecieveStats,
+                ServingStats = newServeStats
+            });
+            VolleyballPlayer newPlayer = domainPlayerToUpdate with { PlayerStats = newWrappers };
+            DomainWrapper.Players = DomainWrapper.Players.Remove(domainPlayerToUpdate);
+            DomainWrapper.Players = DomainWrapper.Players.Add(newPlayer);
+            SaveCurrentDomainToPersistence();
+            return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
 
         public MockViewState EditAddGameAction(string TeamAgainst, DateTime Date)
@@ -62,6 +148,71 @@ namespace StatTrackerGlobal.App
             SaveCurrentDomainToPersistence();
             return ModelHandler.DomainModelsToViewModels(DomainWrapper);
         }
+        public MockViewState EditDeleteSetAction(DateTime Date, int Order)
+        {
+            Predicate<Set> SetExists = s => (s.Date == Date) && (s.Order == Order);
+            Set? setToRemove = DomainWrapper.Sets.Find(SetExists);
+            DomainWrapper.Sets = DomainWrapper.Sets.Remove(setToRemove);
+            bool deleted = false;
+            foreach (var set in DomainWrapper.CurrentGame.Sets)
+            {
+                if (SetExists(set))
+                {
+                    DomainWrapper.CurrentGame.Sets = DomainWrapper.CurrentGame.Sets.Remove(set);
+                    deleted = true;
+                }
+                if (deleted)
+                {
+                    set.Order = set.Order - 1;
+                }
+            }
+            bool deletedFromSets = false;
+            foreach(var set in DomainWrapper.Sets)
+            {
+                if (SetExists(set))
+                {
+                    DomainWrapper.Sets = DomainWrapper.Sets.Remove(set);
+                    deletedFromSets = true;
+                }
+                if (deletedFromSets && set.Date == Date)
+                {
+                    set.Order = set.Order - 1;
+                }
+            }
+            Predicate<Game> GameExists = g => (g.Date == Date);
+            Game? gameToFind = DomainWrapper.Games.Find(GameExists);
+            bool deletedFromGames = false;
+            foreach (var set in gameToFind.Sets)
+            {
+                if (SetExists(set))
+                {
+                    gameToFind.Sets = gameToFind.Sets.Remove(set);
+                    deletedFromGames = true;
+                }
+                if (deletedFromGames)
+                {
+                    set.Order = set.Order - 1;
+                }
+            }
+            bool deletedFromPlayers = false;
+            foreach (var player in DomainWrapper.Players)
+            {
+                foreach (var playerStat in player.PlayerStats)
+                {
+                    if (SetExists(playerStat.StatSet))
+                    {
+                        player.PlayerStats = player.PlayerStats.Remove(playerStat);
+                        deletedFromPlayers = true;
+                    }
+                    if (deletedFromPlayers && playerStat.StatSet.Date == Date)
+                    {
+                        playerStat.StatSet.Order = playerStat.StatSet.Order - 1;
+                    }
+                }
+            }
+            SaveCurrentDomainToPersistence();
+            return ModelHandler.DomainModelsToViewModels(DomainWrapper);
+        }
         public MockViewState EditAddGameSetsAction(string TeamAgainst, DateTime Date)
         {
             Predicate<Game> Exists = g => ((g.Date == Date) && (g.TeamTwo == TeamAgainst));
@@ -69,9 +220,10 @@ namespace StatTrackerGlobal.App
             Set newSet = new()
             {
                 LocalPlayers = DomainWrapper.Players,
-                Order = domainGame.Sets.Count(),
+                Order = domainGame.Sets.Count() + 1,
                 TeamOne = DomainWrapper.Team.Name,
-                TeamTwo = TeamAgainst
+                TeamTwo = TeamAgainst,
+                Date = Date
             };
             domainGame.Sets = domainGame.Sets.Add(newSet);
             DomainWrapper.Sets = DomainWrapper.Sets.Add(newSet);

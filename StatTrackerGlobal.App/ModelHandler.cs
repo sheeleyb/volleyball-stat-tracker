@@ -1,19 +1,9 @@
 ﻿using StatTrackerGlobal.App.DataModels;
-using StatTrackerGlobal.App.Interfaces;
 using StatTrackerGlobal.App.ViewModels;
 using StatTrackerGlobal.Domain;
 using StatTrackerGlobal.Domain.Stats;
 using StatTrackerGlobal.Shared;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
@@ -68,7 +58,7 @@ namespace StatTrackerGlobal.App
                                                                   new SetOverviewServe(0, 0, 0, 0, 0));
                 foreach (var playerStat in player.PlayerStats)
                 {
-                    Predicate<Set> setChecker = s => (s.TeamOne == playerStat.StatSet.TeamOne) && (s.TeamTwo == playerStat.StatSet.TeamTwo);
+                    Predicate<Set> setChecker = s => (s.Date == playerStat.StatSet.Date) && (s.Order == playerStat.StatSet.Order);
                     if (setChecker(domain.CurrentSet))
                     {
                         tempPlayer = tempPlayer with
@@ -85,11 +75,11 @@ namespace StatTrackerGlobal.App
                             PassStats = new SetOverviewPasses(playerStat.PassingStats.Digs,
                                                               playerStat.PassingStats.BallTouches,
                                                               playerStat.PassingStats.BallMisses,
-                                                              playerStat.PassingStats.TouchPercent), 
+                                                              playerStat.PassingStats.TouchPercent),
                             ServeRecieveStats = new SetOverviewServeRecieve(playerStat.ServeRecieveStats.ThreePointPasses,
                                                                             playerStat.ServeRecieveStats.TwoPointPasses,
                                                                             playerStat.ServeRecieveStats.OnePointPasses,
-                                                                            playerStat.ServeRecieveStats.ZeroPointPasses), 
+                                                                            playerStat.ServeRecieveStats.ZeroPointPasses),
                             ServeStats = new SetOverviewServe(playerStat.ServingStats.Aces,
                                                               playerStat.ServingStats.ServesMade,
                                                               playerStat.ServingStats.ServesMissed,
@@ -120,7 +110,8 @@ namespace StatTrackerGlobal.App
             {
                 TeamOnePoints = domain.CurrentSet.TeamOneScore,
                 TeamTwoPoints = domain.CurrentSet.TeamTwoScore,
-                Players = setPlayers
+                Players = setPlayers,
+                Date = domain.CurrentGame.Date
             };
             TeamOverviewViewModel teamViewModel = new TeamOverviewViewModel()
             {
@@ -176,7 +167,7 @@ namespace StatTrackerGlobal.App
                     {
                         foreach (var playerStat in player.PlayerStats)
                         {
-                            if ((playerStat.StatSet.TeamOne == set.TeamOne) && (playerStat.StatSet.TeamTwo == set.TeamTwo))
+                            if ((playerStat.StatSet.Date == set.Date) && (playerStat.StatSet.Order == set.Order))
                             {
                                 Predicate<PlayerData> matchDataPlayer = p => ((p.FirstName + p.LastName) == (player.FirstName + player.LastName));
                                 PlayerData? matchedPlayer = playerData.Find(matchDataPlayer);
@@ -304,7 +295,8 @@ namespace StatTrackerGlobal.App
                         TeamTwo = gameData.TeamTwo,
                         TeamOneScore = setToAdd.TeamOneScore,
                         TeamTwoScore = setToAdd.TeamTwoScore,
-                        Order = setToAdd.Order
+                        Order = setToAdd.Order,
+                        Date = gameData.TimeStamp
                     });
                     Set domainSet = new Set()
                     {
@@ -312,104 +304,110 @@ namespace StatTrackerGlobal.App
                         TeamTwo = gameData.TeamTwo,
                         TeamOneScore = setToAdd.TeamOneScore,
                         TeamTwoScore = setToAdd.TeamTwoScore,
-                        Order = setToAdd.Order
+                        Order = setToAdd.Order,
+                        Date = gameData.TimeStamp
                     };
+                    Sets = Sets.Add(domainSet);
                     foreach (var statEvent in setToAdd.StatEvents)
                     {
                         Predicate<PlayerData> playerStatMatch = p => (statEvent.PlayerId == p.Id);
                         PlayerData? playerDataToAdd = data.PlayerData.Find(playerStatMatch);
                         Predicate<VolleyballPlayer> playerDomainMatch = p => ((playerDataToAdd.FirstName + playerDataToAdd.LastName) == (p.FirstName + p.LastName));
                         VolleyballPlayer? playerToEdit = Players.Find(playerDomainMatch);
-                        Predicate<Set> matchSet = s => ((s.TeamOne == domainSet.TeamOne) && (s.TeamTwo == domainSet.TeamTwo));
-                        foreach (var statWrapper in playerToEdit.PlayerStats)
+                        Predicate<DomainStatWrapper> setMatch = s => (s.StatSet.Date == domainSet.Date) && (s.StatSet.Order == setToAdd.Order);
+                        DomainStatWrapper? domainStatWrapper = playerToEdit.PlayerStats.Find(setMatch);
+                        if (domainStatWrapper == null)
                         {
-                            if (matchSet(statWrapper.StatSet))
+                            domainStatWrapper = new DomainStatWrapper()
                             {
-                                AttackingStats newAttacks = new();
-                                BlockingStats newBlocks = new();
-                                PassingStats newPasses = new();
-                                ServeRecieveStats newServeRecieves = new();
-                                ServingStats newServes = new();
-                                DomainStatWrapper newWrapper = new();
-                                switch(statEvent.StatEvent)
-                                {
-                                    case StatEvent.Kill:
-                                        newAttacks = statWrapper.AttackingStats with { Kills = statWrapper.AttackingStats.Kills + 1};
-                                        newWrapper = statWrapper with { AttackingStats =  newAttacks};
-                                        break;
-                                    case StatEvent.Attempt:
-                                        newAttacks = statWrapper.AttackingStats with { Attempts = statWrapper.AttackingStats.Attempts + 1 };
-                                        newWrapper = statWrapper with { AttackingStats = newAttacks };
-                                        break;
-                                    case StatEvent.Error:
-                                        newAttacks = statWrapper.AttackingStats with { Kills = statWrapper.AttackingStats.Errors + 1 };
-                                        newWrapper = statWrapper with { AttackingStats = newAttacks };
-                                        break;
-                                    case StatEvent.KillBlock:
-                                        newBlocks = statWrapper.BlockingStats with { KillBlocks = statWrapper.BlockingStats.KillBlocks + 1 };
-                                        newWrapper = statWrapper with { BlockingStats = newBlocks };
-                                        break;
-                                    case StatEvent.Touch:
-                                        newBlocks = statWrapper.BlockingStats with { Touches = statWrapper.BlockingStats.Touches + 1 };
-                                        newWrapper = statWrapper with { BlockingStats = newBlocks };
-                                        break;
-                                    case StatEvent.BlockError:
-                                        newBlocks = statWrapper.BlockingStats with { BlockErrors = statWrapper.BlockingStats.BlockErrors + 1 };
-                                        newWrapper = statWrapper with { BlockingStats = newBlocks };
-                                        break;
-                                    case StatEvent.Dig:
-                                        newPasses = statWrapper.PassingStats with { Digs = statWrapper.PassingStats.Digs + 1 };
-                                        newWrapper = statWrapper with { PassingStats = newPasses };
-                                        break;
-                                    case StatEvent.BallTouch:
-                                        newPasses = statWrapper.PassingStats with { BallTouches = statWrapper.PassingStats.BallTouches + 1 };
-                                        newWrapper = statWrapper with { PassingStats = newPasses };
-                                        break;
-                                    case StatEvent.BallMiss:
-                                        newPasses = statWrapper.PassingStats with { BallMisses = statWrapper.PassingStats.BallMisses + 1 };
-                                        newWrapper = statWrapper with { PassingStats = newPasses };
-                                        break;
-                                    case StatEvent.ThreePointPass:
-                                        newServeRecieves = statWrapper.ServeRecieveStats with { ThreePointPasses = statWrapper.ServeRecieveStats.ThreePointPasses + 1 };
-                                        newWrapper = statWrapper with { ServeRecieveStats = newServeRecieves };
-                                        break;
-                                    case StatEvent.TwoPointPass:
-                                        newServeRecieves = statWrapper.ServeRecieveStats with { TwoPointPasses = statWrapper.ServeRecieveStats.TwoPointPasses + 1 };
-                                        newWrapper = statWrapper with { ServeRecieveStats = newServeRecieves };
-                                        break;
-                                    case StatEvent.OnePointPass:
-                                        newServeRecieves = statWrapper.ServeRecieveStats with { OnePointPasses = statWrapper.ServeRecieveStats.OnePointPasses + 1 };
-                                        newWrapper = statWrapper with { ServeRecieveStats = newServeRecieves };
-                                        break;
-                                    case StatEvent.ZeroPointPass:
-                                        newServeRecieves = statWrapper.ServeRecieveStats with { ZeroPointPasses = statWrapper.ServeRecieveStats.ZeroPointPasses + 1 };
-                                        newWrapper = statWrapper with { ServeRecieveStats = newServeRecieves };
-                                        break;
-                                    case StatEvent.Ace:
-                                        newServes = statWrapper.ServingStats with { Aces = statWrapper.ServingStats.Aces + 1 };
-                                        newWrapper = statWrapper with { ServingStats = newServes };
-                                        break;
-                                    case StatEvent.ServeMade:
-                                        newServes = statWrapper.ServingStats with { ServesMade = statWrapper.ServingStats.ServesMade + 1 };
-                                        newWrapper = statWrapper with { ServingStats = newServes };
-                                        break;
-                                    case StatEvent.ServeMissed:
-                                        newServes = statWrapper.ServingStats with { ServesMissed = statWrapper.ServingStats.ServesMissed + 1 };
-                                        newWrapper = statWrapper with { ServingStats = newServes };
-                                        break;
-                                }
-                                playerToEdit.PlayerStats = playerToEdit.PlayerStats.Remove(statWrapper);
-                                playerToEdit.PlayerStats = playerToEdit.PlayerStats.Add(newWrapper);
-
-                            }
+                                StatSet = domainSet
+                            };
+                            playerToEdit.PlayerStats = playerToEdit.PlayerStats.Add(domainStatWrapper);
                         }
+                        AttackingStats newAttacks = new();
+                        BlockingStats newBlocks = new();
+                        PassingStats newPasses = new();
+                        ServeRecieveStats newServeRecieves = new();
+                        ServingStats newServes = new();
+                        DomainStatWrapper newWrapper = new()
+                        {
+                            StatSet = domainSet
+                        };
+                        switch (statEvent.StatEvent)
+                        {
+                            case StatEvent.Kill:
+                                newAttacks = domainStatWrapper.AttackingStats with { Kills = domainStatWrapper.AttackingStats.Kills + 1 };
+                                newWrapper = domainStatWrapper with { AttackingStats = newAttacks };
+                                break;
+                            case StatEvent.Attempt:
+                                newAttacks = domainStatWrapper.AttackingStats with { Attempts = domainStatWrapper.AttackingStats.Attempts + 1 };
+                                newWrapper = domainStatWrapper with { AttackingStats = newAttacks };
+                                break;
+                            case StatEvent.Error:
+                                newAttacks = domainStatWrapper.AttackingStats with { Errors = domainStatWrapper.AttackingStats.Errors + 1 };
+                                newWrapper = domainStatWrapper with { AttackingStats = newAttacks };
+                                break;
+                            case StatEvent.KillBlock:
+                                newBlocks = domainStatWrapper.BlockingStats with { KillBlocks = domainStatWrapper.BlockingStats.KillBlocks + 1 };
+                                newWrapper = domainStatWrapper with { BlockingStats = newBlocks };
+                                break;
+                            case StatEvent.Touch:
+                                newBlocks = domainStatWrapper.BlockingStats with { Touches = domainStatWrapper.BlockingStats.Touches + 1 };
+                                newWrapper = domainStatWrapper with { BlockingStats = newBlocks };
+                                break;
+                            case StatEvent.BlockError:
+                                newBlocks = domainStatWrapper.BlockingStats with { BlockErrors = domainStatWrapper.BlockingStats.BlockErrors + 1 };
+                                newWrapper = domainStatWrapper with { BlockingStats = newBlocks };
+                                break;
+                            case StatEvent.Dig:
+                                newPasses = domainStatWrapper.PassingStats with { Digs = domainStatWrapper.PassingStats.Digs + 1 };
+                                newWrapper = domainStatWrapper with { PassingStats = newPasses };
+                                break;
+                            case StatEvent.BallTouch:
+                                newPasses = domainStatWrapper.PassingStats with { BallTouches = domainStatWrapper.PassingStats.BallTouches + 1 };
+                                newWrapper = domainStatWrapper with { PassingStats = newPasses };
+                                break;
+                            case StatEvent.BallMiss:
+                                newPasses = domainStatWrapper.PassingStats with { BallMisses = domainStatWrapper.PassingStats.BallMisses + 1 };
+                                newWrapper = domainStatWrapper with { PassingStats = newPasses };
+                                break;
+                            case StatEvent.ThreePointPass:
+                                newServeRecieves = domainStatWrapper.ServeRecieveStats with { ThreePointPasses = domainStatWrapper.ServeRecieveStats.ThreePointPasses + 1 };
+                                newWrapper = domainStatWrapper with { ServeRecieveStats = newServeRecieves };
+                                break;
+                            case StatEvent.TwoPointPass:
+                                newServeRecieves = domainStatWrapper.ServeRecieveStats with { TwoPointPasses = domainStatWrapper.ServeRecieveStats.TwoPointPasses + 1 };
+                                newWrapper = domainStatWrapper with { ServeRecieveStats = newServeRecieves };
+                                break;
+                            case StatEvent.OnePointPass:
+                                newServeRecieves = domainStatWrapper.ServeRecieveStats with { OnePointPasses = domainStatWrapper.ServeRecieveStats.OnePointPasses + 1 };
+                                newWrapper = domainStatWrapper with { ServeRecieveStats = newServeRecieves };
+                                break;
+                            case StatEvent.ZeroPointPass:
+                                newServeRecieves = domainStatWrapper.ServeRecieveStats with { ZeroPointPasses = domainStatWrapper.ServeRecieveStats.ZeroPointPasses + 1 };
+                                newWrapper = domainStatWrapper with { ServeRecieveStats = newServeRecieves };
+                                break;
+                            case StatEvent.Ace:
+                                newServes = domainStatWrapper.ServingStats with { Aces = domainStatWrapper.ServingStats.Aces + 1 };
+                                newWrapper = domainStatWrapper with { ServingStats = newServes };
+                                break;
+                            case StatEvent.ServeMade:
+                                newServes = domainStatWrapper.ServingStats with { ServesMade = domainStatWrapper.ServingStats.ServesMade + 1 };
+                                newWrapper = domainStatWrapper with { ServingStats = newServes };
+                                break;
+                            case StatEvent.ServeMissed:
+                                newServes = domainStatWrapper.ServingStats with { ServesMissed = domainStatWrapper.ServingStats.ServesMissed + 1 };
+                                newWrapper = domainStatWrapper with { ServingStats = newServes };
+                                break;
+                        }
+                        playerToEdit.PlayerStats = playerToEdit.PlayerStats.Remove(domainStatWrapper);
+                        playerToEdit.PlayerStats = playerToEdit.PlayerStats.Add(newWrapper);
                     }
 
                 }
                 Games = Games.Add(new Game()
                 {
                     Date = gameData.TimeStamp,
-
                     TeamOne = data.TeamData.Name,
                     TeamTwo = gameData.TeamTwo,
                     Sets = GameSets

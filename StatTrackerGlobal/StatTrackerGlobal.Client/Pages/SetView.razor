@@ -1,32 +1,72 @@
-﻿@page "/teamview/{TeamName}/gameview/setview"
+﻿@page "/teamview/{TeamName}/gameview/setview/{SetOrder:int}"
 
 @using Fluxor
 @using StatTrackerGlobal.App.ViewModels
 @using StatTrackerGlobal.Client.Store
 @using System.Collections.Immutable
+@using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel
 
 @inject IState<ViewState> ViewState
 @inject IDispatcher Dispatcher
+@inject NavigationManager NavManager
 
-@* <table>
-    <tr>
-        <th style="width: 200px">Name</th>
-        <th style="width: 50px">Number</th>
-        <th style="width: 50px">Height</th>
-        <th style="width: 300px;">Position</th>
-        <th style="width: 50px;">Details</th>
-    </tr>
-    @foreach (var player in Players)
-    {
-        <tr>
-            <td>@player.Player.FirstName @player.Player.LastName</td>
-            <td>@player.Player.JerseyNumber</td>
-            <td>@player.Player.Height</td>
-            <td>@player.Player.Position</td>
-            <td><button class="btn btn-primary" @onclick="@(detailView => ShowDetailView(player))">Details</button></td>
-        </tr>
-    }
-</table> *@
+<h3>Set @SetOrder</h3>
+
+<div>
+    <button class="btn btn-primary" @onclick="NavToGameView">Return to game view</button>
+    <button class="btn btn-delete" @onclick="DeleteCurrentSet">Delete Set</button>
+</div>
+
+<div class="flex-container">
+    <div class=flex-child>
+        <table>
+            <tr>
+                <th style="width: 200px">Name</th>
+                <th style="width: 50px">Number</th>
+                <th style="width: 50px">Height</th>
+                <th style="width: 300px;">Position</th>
+                <th style="width: 50px;">Details</th>
+            </tr>
+            @foreach (var player in ViewModel.Players)
+            {
+                <tr>
+                    <td>@player.FirstName @player.LastName</td>
+                    <td>@player.JerseyNumber</td>
+                    <td>@player.Height</td>
+                    <td>@player.Position</td>
+                    <td><button class="btn btn-primary" @onclick="@(detailView => ShowDetailView(player))">Details</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="flex-child">
+        <PlayerDetails @ref="playerDetails" SetPlayer="playerToShow"></PlayerDetails>
+    </div>
+</div>
+
 
 @code {
+    [Parameter]
+    public int SetOrder { get; set; }
+
+    PlayerDetails playerDetails;
+
+    SetOverviewPlayer playerToShow { get; set; }
+
+    public void NavToGameView()
+    {
+        NavManager.NavigateTo("/teamview/" + TeamName + "/gameview");
+    }
+
+    public void DeleteCurrentSet()
+    {
+        Dispatcher.Dispatch(new DeleteSetAction(ViewModel.Date, SetOrder));
+        NavToGameView();
+    }
+
+    public void ShowDetailView(SetOverviewPlayer player)
+    {
+        playerToShow = player;
+        playerDetails.Open();
+    }
 }

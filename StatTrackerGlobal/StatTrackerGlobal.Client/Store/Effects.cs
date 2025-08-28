@@ -23,9 +23,21 @@ namespace StatTrackerGlobal.Client.Store
             dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
         }
         [EffectMethod]
+        public async Task HandleUpdateCurrentSetAction(UpdateCurrentSetAction action, IDispatcher dispatcher)
+        {
+            MockViewState newState = AppService.EditUpdateCurrentSetAction(action.TeamOne, action.TeamTwo, action.Date, action.Order);
+            dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
+        }
+        [EffectMethod]
         public async Task HandleUpdateTeamViewModelAction(UpdateTeamViewModelAction action, IDispatcher dispatcher)
         {
             MockViewState newState = AppService.EditUpdateCurrentTeamAction(action.team);
+            dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
+        }
+        [EffectMethod]
+        public async Task HandleUpdatePlayerStatAction(UpdatePlayerStatAction action, IDispatcher dispatcher)
+        {
+            MockViewState newState = AppService.EditUpdatePlayerStatAction(action.playerToUpdate, action.currentSet);
             dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
         }
         [EffectMethod]
@@ -56,6 +68,12 @@ namespace StatTrackerGlobal.Client.Store
         public async Task HandlerDeleteGameAction(DeleteGameAction action, IDispatcher dispatcher)
         {
             MockViewState newState = AppService.EditDeleteGameAction(action.TeamAgainst, action.Date);
+            dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
+        }
+        [EffectMethod]
+        public async Task HandleDeleteSetAction(DeleteSetAction action, IDispatcher dispatcher)
+        {
+            MockViewState newState = AppService.EditDeleteSetAction(action.Date, action.Order);
             dispatcher.Dispatch(new UpdateViewStateAction(ViewState.MockToViewState(newState)));
         }
         [EffectMethod]

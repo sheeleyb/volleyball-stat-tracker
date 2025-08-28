@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
+using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
 
 namespace StatTrackerGlobal.App.Interfaces
@@ -16,12 +17,15 @@ namespace StatTrackerGlobal.App.Interfaces
     public interface IApplicationService
     {
         public MockViewState EditUpdateCurrentGameAction(string TeamAgainst, DateTime Date);
+        public MockViewState EditUpdateCurrentSetAction(string TeamOne, string TeamTwo, DateTime Date, int Order);
         public MockViewState EditUpdateCurrentTeamAction(TeamOverviewViewModel Team);
+        public MockViewState EditUpdatePlayerStatAction(SetOverviewPlayer playerToUpdate, SetOverviewViewModel currentSet);
         public MockViewState EditAddGameSetsAction(string TeamAgainst, DateTime Date);
         public MockViewState EditAddPlayerAction(string FirstName, string LastName, int JerseyNumber, string Height, string Position);
         public MockViewState EditDeletePlayerAction(string FirstName, string LastName);
         public MockViewState EditAddGameAction(string TeamAgainst, DateTime Date);
         public MockViewState EditDeleteGameAction(string TeamAgainst, DateTime Date);
+        public MockViewState EditDeleteSetAction(DateTime Date, int Order);
         public MockViewState EditInitializeApplicationAction();
     }
 }

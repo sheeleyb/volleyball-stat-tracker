@@ -9,6 +9,7 @@ namespace StatTrackerGlobal.App.ViewModels
 {
     public class SetOverviewViewModel
     {
+        public DateTime Date { get; init; }
         public int TeamOnePoints { get; set; }
         public int TeamTwoPoints { get; set; }
         public record SetOverviewPlayer(string FirstName,

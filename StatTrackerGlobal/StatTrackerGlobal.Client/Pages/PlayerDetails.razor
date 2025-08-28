@@ -1,10 +1,18 @@
 ﻿@using StatTrackerGlobal.Shared
+@using Fluxor
+@using StatTrackerGlobal.App.ViewModels
+@using StatTrackerGlobal.Client.Store
+@using System.Collections.Immutable
+@using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel
 
-@inherits PlayerDetailsBase
+@inherits Fluxor.Blazor.Web.Components.FluxorComponent
 
-@* <h3 align="center">Stats for @Player.FirstName @Player.LastName</h3>
+@inject IState<ViewState> ViewState
+@inject IDispatcher Dispatcher
 
-@if (Player.Position == "Libero" || Player.Position == "Defensive Specialist")
+@if (this.isShowing) {
+    <h3 align="center">Stats for @SetPlayer.FirstName @SetPlayer.LastName</h3>
+@if (@SetPlayer.Position == "Libero" || @SetPlayer.Position == "Defensive Specialist")
 {
     <table align="center">
         <tr align="center">
@@ -13,22 +21,22 @@
             <th>Ball Missed</th>
         </tr>
         <tr align="center">
-            <td>@Player.PassingStats.Digs</td>
-            <td>@Player.PassingStats.BallTouches</td>
-            <td>@Player.PassingStats.BallMisses</td>
+            <td>@SetPlayer.PassStats.Digs</td>
+            <td>@SetPlayer.PassStats.BallTouches</td>
+            <td>@SetPlayer.PassStats.BallMisses</td>
         </tr>
         <tr align="center">
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.PassingStats.Digs))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.PassingStats.Digs))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementDigs">+</button>
+                <button class="btn btn-primary" @onclick="DecrementDigs">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.PassingStats.BallTouches))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.PassingStats.BallTouches))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementBallTouches">+</button>
+                <button class="btn btn-primary" @onclick="DecrementBallTouches">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.PassingStats.BallMisses))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.PassingStats.BallMisses))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementBallMisses">+</button>
+                <button class="btn btn-primary" @onclick="DecrementBallMisses">-</button>
             </td>
         </tr>
         <tr align="center">
@@ -37,22 +45,22 @@
             <th>Aces</th>
         </tr>
         <tr align="center">
-            <td>@Player.ServingStats.ServesMade</td>
-            <td>@Player.ServingStats.ServesMissed</td>
-            <td>@Player.ServingStats.Aces</td>
+            <td>@SetPlayer.ServeStats.ServesMade</td>
+            <td>@SetPlayer.ServeStats.ServesMissed</td>
+            <td>@SetPlayer.ServeStats.Aces</td>
         </tr>
         <tr align="center">
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.ServingStats.ServesMade))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.ServingStats.ServesMade))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementServesMade">+</button>
+                <button class="btn btn-primary" @onclick="DecrementServesMade">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.ServingStats.ServesMissed))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.ServingStats.ServesMissed))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementServesMissed">+</button>
+                <button class="btn btn-primary" @onclick="DecrementServesMissed">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.ServingStats.Aces))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.ServingStats.Aces))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementAces">+</button>
+                <button class="btn btn-primary" @onclick="DecrementAces">-</button>
             </td>
         </tr>
     </table>
@@ -66,22 +74,22 @@ else
             <th>Attack Attempts</th>
         </tr>
         <tr align="center">
-            <td>@Player.AttackingStats.Kills</td>
-            <td>@Player.AttackingStats.Attempts</td>
-            <td>@Player.AttackingStats.Errors</td>
+            <td>@SetPlayer.AttackStats.Kills</td>
+            <td>@SetPlayer.AttackStats.Attempts</td>
+            <td>@SetPlayer.AttackStats.Errors</td>
         </tr>
         <tr align="center">
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.AttackingStats.Kills))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.AttackingStats.Kills))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementKills">+</button>
+                <button class="btn btn-primary" @onclick="DecrementKills">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.AttackingStats.Attempts))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.AttackingStats.Attempts))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementAttempts">+</button>
+                <button class="btn btn-primary" @onclick="DecrementAttempts">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.AttackingStats.Errors))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.AttackingStats.Errors))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementErrors">+</button>
+                <button class="btn btn-primary" @onclick="DecrementErrors">-</button>
             </td>
         </tr>
         <tr align="center">
@@ -90,22 +98,22 @@ else
             <th>Ball Missed</th>
         </tr>
         <tr align="center">
-            <td>@Player.PassingStats.Digs</td>
-            <td>@Player.PassingStats.BallTouches</td>
-            <td>@Player.PassingStats.BallMisses</td>
+            <td>@SetPlayer.PassStats.Digs</td>
+            <td>@SetPlayer.PassStats.BallTouches</td>
+            <td>@SetPlayer.PassStats.BallMisses</td>
         </tr>
         <tr align="center">
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.PassingStats.Digs))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.PassingStats.Digs))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementDigs">+</button>
+                <button class="btn btn-primary" @onclick="DecrementDigs">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.PassingStats.BallTouches))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.PassingStats.BallTouches))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementBallTouches">+</button>
+                <button class="btn btn-primary" @onclick="DecrementBallTouches">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.PassingStats.BallMisses))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.PassingStats.BallMisses))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementBallMisses">+</button>
+                <button class="btn btn-primary" @onclick="DecrementBallMisses">-</button>
             </td>
         </tr>
         <tr align="center">
@@ -114,22 +122,22 @@ else
             <th>Block Errors</th>
         </tr>
         <tr align="center">
-            <td>@Player.BlockingStats.KillBlocks</td>
-            <td>@Player.BlockingStats.SoftBlocks</td>
-            <td>@Player.BlockingStats.BlockErrors</td>
+            <td>@SetPlayer.BlockStats.KillBlocks</td>
+            <td>@SetPlayer.BlockStats.Touches</td>
+            <td>@SetPlayer.BlockStats.BlockErrors</td>
         </tr>
         <tr align="center">
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.BlockingStats.KillBlocks))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.BlockingStats.KillBlocks))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementKillBlocks">+</button>
+                <button class="btn btn-primary" @onclick="DecrementKillBlocks">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.BlockingStats.SoftBlocks))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.BlockingStats.SoftBlocks))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementTouches">+</button>
+                <button class="btn btn-primary" @onclick="DecrementTouches">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.BlockingStats.BlockErrors))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.BlockingStats.BlockErrors))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementBlockErrors">+</button>
+                <button class="btn btn-primary" @onclick="DecrementBlockErrors">-</button>
             </td>
         </tr>
         <tr align="center">
@@ -138,25 +146,26 @@ else
             <th>Aces</th>
         </tr>
         <tr align="center">
-            <td>@Player.ServingStats.ServesMade</td>
-            <td>@Player.ServingStats.ServesMissed</td>
-            <td>@Player.ServingStats.Aces</td>
+            <td>@SetPlayer.ServeStats.ServesMade</td>
+            <td>@SetPlayer.ServeStats.ServesMissed</td>
+            <td>@SetPlayer.ServeStats.Aces</td>
         </tr>
         <tr align="center">
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.ServingStats.ServesMade))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.ServingStats.ServesMade))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementServesMade">+</button>
+                <button class="btn btn-primary" @onclick="DecrementServesMade">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.ServingStats.ServesMissed))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.ServingStats.ServesMissed))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementServesMissed">+</button>
+                <button class="btn btn-primary" @onclick="DecrementServesMissed">-</button>
             </td>
             <td>
-                <button class="btn btn-primary" @onclick="@(k => Increment(ref Player.ServingStats.Aces))">+</button>
-                <button class="btn btn-primary" @onclick="@(k => Decrement(ref Player.ServingStats.Aces))">-</button>
+                <button class="btn btn-primary" @onclick="IncrementAces">+</button>
+                <button class="btn btn-primary" @onclick="DecrementAces">-</button>
             </td>
         </tr>
     </table>
-} *@
+}
+}
 @code {
 }

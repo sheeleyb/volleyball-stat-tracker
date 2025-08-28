@@ -8,6 +8,7 @@ using StatTrackerGlobal.App;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
 using System.Diagnostics.CodeAnalysis;
+using Fluxor;
 
 namespace StatTrackerGlobal.Client.Pages
 {
@@ -15,6 +16,13 @@ namespace StatTrackerGlobal.Client.Pages
     {
         [Parameter]
         public string TeamName { get; set; }
+        [Inject]
+        public NavigationManager NavManager { get; set; }
+        [Inject]
+        public IDispatcher Dispatcher { get; set; }
+        [Inject]
+        public IState<ViewState> ViewState { get; set; }
+
 
         public TeamOverviewViewModel Team
         {
@@ -30,6 +38,10 @@ namespace StatTrackerGlobal.Client.Pages
         {
             get => ViewState.Value.GameViewModel;
         }
+        public SetOverviewViewModel Set
+        {
+            get => ViewState.Value.SetViewModel;
+        }
         public ImmutableList<GameOverviewSet> Sets
         {
             get => ViewModel.Sets;
@@ -41,6 +53,11 @@ namespace StatTrackerGlobal.Client.Pages
         public void AddSet()
         {
             Dispatcher.Dispatch(new AddGameSetsAction(ViewModel.TeamAgainst, ViewModel.Date));
+        }
+        private void GoToSet(GameOverviewSet set)
+        {
+            Dispatcher.Dispatch(new UpdateCurrentSetAction(Team.TeamName, ViewModel.TeamAgainst, ViewModel.Date, set.Order));
+            NavManager.NavigateTo("teamview/" + TeamName + "/gameview/setview/" + set.Order);
         }
     }
 }
