@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Components;
 using static StatTrackerGlobal.App.ViewModels.TeamOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.GameOverviewViewModel;
 using static StatTrackerGlobal.App.ViewModels.SetOverviewViewModel;
-using System.Security.Cryptography.X509Certificates;
 using StatTrackerGlobal.Domain;
 using StatTrackerGlobal.Domain.Stats;
 
