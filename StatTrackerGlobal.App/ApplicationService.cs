@@ -61,6 +61,7 @@ namespace StatTrackerGlobal.App
         }
         public MockViewState EditUpdatePlayerStatAction(SetOverviewPlayer playerToUpdate, SetOverviewViewModel currentSet)
         {
+            //alter this branch
             Predicate<VolleyballPlayer> playerExists = p => (p.FirstName + p.LastName == playerToUpdate.FirstName + playerToUpdate.LastName);
             VolleyballPlayer? domainPlayerToUpdate = DomainWrapper.Players.Find(playerExists);
             Predicate<DomainStatWrapper> statWrapperExists = s => (s.StatSet.Date == currentSet.Date) && (s.StatSet.Order == DomainWrapper.CurrentSet.Order);
