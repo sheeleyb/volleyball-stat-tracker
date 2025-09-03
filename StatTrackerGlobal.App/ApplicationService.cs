@@ -156,27 +156,27 @@ namespace StatTrackerGlobal.App
             bool deleted = false;
             foreach (var set in DomainWrapper.CurrentGame.Sets)
             {
-                if (deleted)
-                {
-                    set.Order = set.Order - 1;
-                }
-                if (SetExists(set))
+                if (SetExists(set) && !deleted)
                 {
                     DomainWrapper.CurrentGame.Sets = DomainWrapper.CurrentGame.Sets.Remove(set);
                     deleted = true;
+                }
+                else if (deleted)
+                {
+                    set.Order = set.Order - 1;
                 }
             }
             bool deletedFromSets = false;
             foreach(var set in DomainWrapper.Sets)
             {
-                if (deletedFromSets && set.Date == Date)
-                {
-                    set.Order = set.Order - 1;
-                }
-                if (SetExists(set))
+                if (SetExists(set) && !deletedFromSets)
                 {
                     DomainWrapper.Sets = DomainWrapper.Sets.Remove(set);
                     deletedFromSets = true;
+                }
+                else if (deletedFromSets && set.Date == Date)
+                {
+                    set.Order = set.Order - 1;
                 }
             }
             Predicate<Game> GameExists = g => (g.Date == Date);
@@ -184,14 +184,14 @@ namespace StatTrackerGlobal.App
             bool deletedFromGames = false;
             foreach (var set in gameToFind.Sets)
             {
-                if (deletedFromGames)
-                {
-                    set.Order = set.Order - 1;
-                }
-                if (SetExists(set))
+                if (SetExists(set) && !deletedFromGames)
                 {
                     gameToFind.Sets = gameToFind.Sets.Remove(set);
                     deletedFromGames = true;
+                }
+                else if (deletedFromGames)
+                {
+                    set.Order = set.Order - 1;
                 }
             }
             bool deletedFromPlayers = false;
@@ -199,14 +199,14 @@ namespace StatTrackerGlobal.App
             {
                 foreach (var playerStat in player.PlayerStats)
                 {
-                    if (deletedFromPlayers && playerStat.StatSet.Date == Date)
-                    {
-                        playerStat.StatSet.Order = playerStat.StatSet.Order - 1;
-                    }
-                    if (SetExists(playerStat.StatSet))
+                    if (SetExists(playerStat.StatSet) && !deletedFromPlayers)
                     {
                         player.PlayerStats = player.PlayerStats.Remove(playerStat);
                         deletedFromPlayers = true;
+                    }
+                    else if (deletedFromPlayers && playerStat.StatSet.Date == Date)
+                    {
+                        playerStat.StatSet.Order = playerStat.StatSet.Order - 1;
                     }
                 }
             }
