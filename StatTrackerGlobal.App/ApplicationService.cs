@@ -156,12 +156,12 @@ namespace StatTrackerGlobal.App
             bool deleted = false;
             foreach (var set in DomainWrapper.CurrentGame.Sets)
             {
-                if (SetExists(set))
+                if (SetExists(set) && !deleted)
                 {
                     DomainWrapper.CurrentGame.Sets = DomainWrapper.CurrentGame.Sets.Remove(set);
                     deleted = true;
                 }
-                if (deleted)
+                else if (deleted)
                 {
                     set.Order = set.Order - 1;
                 }
@@ -169,12 +169,12 @@ namespace StatTrackerGlobal.App
             bool deletedFromSets = false;
             foreach(var set in DomainWrapper.Sets)
             {
-                if (SetExists(set))
+                if (SetExists(set) && !deletedFromSets)
                 {
                     DomainWrapper.Sets = DomainWrapper.Sets.Remove(set);
                     deletedFromSets = true;
                 }
-                if (deletedFromSets && set.Date == Date)
+                else if (deletedFromSets && set.Date == Date)
                 {
                     set.Order = set.Order - 1;
                 }
@@ -184,12 +184,12 @@ namespace StatTrackerGlobal.App
             bool deletedFromGames = false;
             foreach (var set in gameToFind.Sets)
             {
-                if (SetExists(set))
+                if (SetExists(set) && !deletedFromGames)
                 {
                     gameToFind.Sets = gameToFind.Sets.Remove(set);
                     deletedFromGames = true;
                 }
-                if (deletedFromGames)
+                else if (deletedFromGames)
                 {
                     set.Order = set.Order - 1;
                 }
@@ -199,12 +199,12 @@ namespace StatTrackerGlobal.App
             {
                 foreach (var playerStat in player.PlayerStats)
                 {
-                    if (SetExists(playerStat.StatSet))
+                    if (SetExists(playerStat.StatSet) && !deletedFromPlayers)
                     {
                         player.PlayerStats = player.PlayerStats.Remove(playerStat);
                         deletedFromPlayers = true;
                     }
-                    if (deletedFromPlayers && playerStat.StatSet.Date == Date)
+                    else if (deletedFromPlayers && playerStat.StatSet.Date == Date)
                     {
                         playerStat.StatSet.Order = playerStat.StatSet.Order - 1;
                     }
