@@ -26,6 +26,8 @@ namespace StatTrackerGlobal.App
 
         public static MockViewState DomainModelsToViewModels(DomainWrapper domain)
         {
+            int compareByNames(VolleyballPlayer player1, VolleyballPlayer player2) => String.Compare(player1.LastName, player2.LastName);
+            domain.Players = domain.Players.Sort(compareByNames);
             ImmutableList<TeamOverviewPlayer> teamPlayers = [];
             ImmutableList<TeamOverviewGame> teamGames = [];
             ImmutableList<GameOverviewPlayer> gamePlayers = [];
