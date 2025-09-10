@@ -7,27 +7,15 @@
 @using StatTrackerGlobal.Client.Store
 @using StatTrackerGlobal.Shared
 
-<h3>Create a new user</h3>
+<h3>Select a valid json</h3>
 
-<form>
-    <label for="username">Username</label>
-    <div></div>
-    <input id="username" @bind="Username" />
-    <div></div>
-    <label for="password">Password</label>
-    <div></div>
-    <input id="password" @bind="Password" />
-    <div></div>
-    <label for="teamname">Team Name</label>
-    <div></div>
-    <input id="teamname" @bind="TeamName" />
-    <div></div>
-    @* <button class="btn btn-primary" @onclick="LoginToTeamView">Login</button> *@
-</form>
 
 <button class="btn btn-primary" @onclick="JustGoToAPlace">Just go to a place</button>
 
+
 @code {
+    //Inputfiles was kind of a stupid idea for a web app, even if it's designed to be used by one team one seaon at a time
+        //Try going back to data stored on the server.
     public class LoginViewModel
     {
         public string Username { get; init; }
@@ -36,5 +24,8 @@
     }
     public LoginViewModel ViewModel = new LoginViewModel();
 
-    //make some change to the login method
+    private void SelectFilePath(InputFileChangeEventArgs e)
+    {
+        SelectedFilePath = e.File.Name;
+    }
 }

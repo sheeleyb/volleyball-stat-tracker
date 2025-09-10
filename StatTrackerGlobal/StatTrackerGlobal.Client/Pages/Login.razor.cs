@@ -23,6 +23,7 @@ namespace StatTrackerGlobal.Client.Pages
         private string Username { get; set; }
         private string Password { get; set; }
         private string TeamName { get; set; }
+        private string SelectedFilePath { get; set; }
         public TeamOverviewViewModel TeamViewModel
         {
             get => ViewState.Value.TeamViewModel;
